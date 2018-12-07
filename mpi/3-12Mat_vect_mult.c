@@ -60,8 +60,9 @@ int main(){
         //广播矩阵N
         /**
          * 为何使用MPI_Bcast会阻塞在这里？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？
+         * MPI_Bcast可以指定FLAG？？？
          */
-        //MPI_Bcast(N,width*width,MPI_FLOAT,N_FLAG,MPI_COMM_WORLD);
+        //MPI_Bcast(N,nRow*nCol,MPI_FLOAT,N_FLAG,MPI_COMM_WORLD);
         for(i=1;i<comm_sz;i++){
             MPI_Send(N,nRow*nCol,MPI_FLOAT,i,N_FLAG,MPI_COMM_WORLD);
         }
@@ -69,6 +70,11 @@ int main(){
         for(i=1;i<comm_sz;i++){
             MPI_Send(M+i*line_per_block*mCol,line_per_block*mCol,MPI_FLOAT,i,BUFFER_FLAG,MPI_COMM_WORLD);
         }
+        /**
+         * 为何使用MPI_Scatter会阻塞在这里？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？
+         * MPI_Scatter可以指定FLAG？？？
+         */
+        //MPI_Scatter(M,line_per_block*mCol,MPI_FLOAT,buffer,line_per_block*mCol,MPI_FLOAT,0,MPI_COMM_WORLD);
         //接收从进程计算结果
         for(k=1;k<comm_sz;k++){
             MPI_Recv(ans,line_per_block*nCol,MPI_FLOAT,k,ANS_FLAG,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
