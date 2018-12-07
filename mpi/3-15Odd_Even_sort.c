@@ -7,11 +7,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <mpi.h>
 
 void swap(int *a,int *b);
+void copyArray(int *dest,int *sour,int num);
 void printArray(int a[],int n);
-
+//qsort函数调用的比较函数
+int cmp(const void* a,const void* b);
+//生成随机数组
+void generateRandomArray(int a[],int n);
 //获取合并后的较小值
 void Merge_low(int local_keys[],int rec_keys[],int local_n);
 //获取合并后的较大值
@@ -20,57 +25,91 @@ void Merge_high(int local_keys[],int rec_keys[],int local_n);
 int Calcul_partner(int phase,int my_rank,int comm_sz);
 
 void Odd_even_sort(int a[],int n);
-void Odd_even_sort_Parallel(int a[],int n);
+void Odd_even_sort_Parallel(int a[],int n,int verifyResult[]);
 
 
 int main(){
-    int a[] = {4,5,3,1,8,0};
-    Odd_even_sort(a,6);
-    printArray(a,6);
+    int n = 10000;
+    int a[n],b[n];
+    generateRandomArray(a,n);
+    //b数组用快速排序，用于验证a数组并行排序结果是否正确
+    copyArray(b,a,n);
+    qsort(b,n,sizeof(int),cmp);
+    Odd_even_sort_Parallel(a,n,b);
+    //printArray(a,n);
 
-    int b[] = {1,3,5,7,9};
-    int c[] = {2,4,6,8,10};
-    Merge_high(b,c,5);
-    printArray(b,5);
-
-    printf("%d\n",Calcul_partner(0,0,5));
-    printf("%d\n",Calcul_partner(0,2,5));
-    printf("%d\n",Calcul_partner(0,1,5));
-    printf("%d\n",Calcul_partner(1,0,5));
-    printf("%d\n",Calcul_partner(1,1,5));
-    printf("%d\n",Calcul_partner(1,2,5));
-    printf("%d\n",MPI_PROC_NULL);
     return 0;
 }
 
-void Odd_even_sort_Parallel(int a[],int n){
+void Odd_even_sort_Parallel(int keys[],int n,int verifyResult[]){
     int my_rank,comm_sz;
-    int local_n,phase,i,j;
-    int *local_keys;
+    int local_n,phase,partner,i,j;
+    int *local_keys,*recv_keys;
 
     MPI_Init(NULL,NULL);
     MPI_Comm_rank(MPI_COMM_WORLD,&my_rank);
     MPI_Comm_size(MPI_COMM_WORLD,&comm_sz);
     local_n = n/comm_sz;
     local_keys = (int*)malloc(sizeof(int)*local_n);
+    recv_keys = (int*)malloc(sizeof(int)*local_n);
 
     if(my_rank==0){
         //分发数据到各个进程
-
+        //MPI_Scatter(keys,local_n,MPI_INT,local_keys,local_n,MPI_INT,0,MPI_COMM_WORLD);
+        copyArray(local_keys,keys,local_n);
+        for(i=1;i<comm_sz;i++)
+            MPI_Send(keys+i*local_n,local_n,MPI_INT,i,3,MPI_COMM_WORLD);
+    }else{
+        MPI_Recv(local_keys,local_n,MPI_INT,0,3,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+        //printf("rank%d local_keys:\n",my_rank);
+        //printArray(local_keys,local_n);
     }
     //sort local_keys
-
+    qsort(local_keys,local_n,sizeof(int),cmp);
     //exchange
-
+    ///要经过多少个阶段？？？？？？？？？？？？？？？？？？？？？？？
+    for(phase=0;phase<comm_sz;phase++){
+        partner = Calcul_partner(phase,my_rank,comm_sz);
+        if(partner!=MPI_PROC_NULL) {
+            /// send flag   recv glag 可以相同??????????????????????????????????
+            MPI_Sendrecv(local_keys, local_n, MPI_INT, partner, 0, recv_keys, local_n, MPI_INT, partner, 0,
+                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            if (my_rank<partner)
+                Merge_low(local_keys,recv_keys,local_n);
+            else
+                Merge_high(local_keys,recv_keys,local_n);
+        }
+    }
     //聚集各个进程的数据
-
+    if(my_rank!=0)
+        MPI_Send(local_keys,local_n,MPI_INT,0,2,MPI_COMM_WORLD);
+    else{
+        copyArray(keys,local_keys,local_n);
+        for(i=1;i<comm_sz;i++){
+            MPI_Recv(local_keys,local_n,MPI_INT,i,2,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+            copyArray(keys+i*local_n,local_keys,local_n);
+        }
+        for(i=0;i<n;i++)
+            if(keys[i]!=verifyResult[i])
+                break;
+        if(i==n)
+            printf("True!!!\n");
+        else
+            printf("Error!!! i=%d\n",i);
+    }
     MPI_Finalize();
 }
+
 
 void swap(int *a,int *b){
     int temp = *a;
     *a = *b;
     *b = temp;
+}
+void copyArray(int *dest,int *sour,int num){
+    int i;
+    for(i=0;i<num;i++)
+        dest[i] = sour[i];
 }
 void printArray(int a[],int n){
     int i;
@@ -79,6 +118,14 @@ void printArray(int a[],int n){
     printf("\n");
 }
 
+int cmp(const void* a,const void* b){
+    return *((int*)a) - *((int*)b);
+}
+void generateRandomArray(int a[],int n){
+    int i;
+    for(i=0;i<n;i++)
+        a[i] = rand()%n;
+}
 //获取合并后的较小值
 void Merge_low(int local_keys[],int rec_keys[],int local_n){
     int temp[local_n];
