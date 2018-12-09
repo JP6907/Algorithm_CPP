@@ -41,6 +41,8 @@ int main(){
     return 0;
 }
 
+//函数调用的方法，每个进程都能获取到参数里面的数据，不要用这种方式，直接在main里面写
+//MPI_Scatter 和 MPI_Gather要在所有进程中调用
 void Odd_even_sort_Parallel(int keys[],int n,int verifyResult[]){
     int my_rank,comm_sz;
     int local_n,phase,partner,i,j;
@@ -53,17 +55,19 @@ void Odd_even_sort_Parallel(int keys[],int n,int verifyResult[]){
     local_keys = (int*)malloc(sizeof(int)*local_n);
     recv_keys = (int*)malloc(sizeof(int)*local_n);
 
-    if(my_rank==0){
-        //分发数据到各个进程
-        //MPI_Scatter(keys,local_n,MPI_INT,local_keys,local_n,MPI_INT,0,MPI_COMM_WORLD);
-        copyArray(local_keys,keys,local_n);
-        for(i=1;i<comm_sz;i++)
-            MPI_Send(keys+i*local_n,local_n,MPI_INT,i,3,MPI_COMM_WORLD);
-    }else{
-        MPI_Recv(local_keys,local_n,MPI_INT,0,3,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-        //printf("rank%d local_keys:\n",my_rank);
-        //printArray(local_keys,local_n);
-    }
+    //scatter效果等同于下面逐个进程send和recev
+    MPI_Scatter(keys,local_n,MPI_INT,local_keys,local_n,MPI_INT,0,MPI_COMM_WORLD);
+//    if(my_rank==0){
+//        //分发数据到各个进程
+//        //MPI_Scatter(keys,local_n,MPI_INT,local_keys,local_n,MPI_INT,0,MPI_COMM_WORLD);
+//        copyArray(local_keys,keys,local_n);
+//        for(i=1;i<comm_sz;i++)
+//            MPI_Send(keys+i*local_n,local_n,MPI_INT,i,3,MPI_COMM_WORLD);
+//    }else{
+//        MPI_Recv(local_keys,local_n,MPI_INT,0,3,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+//        //printf("rank%d local_keys:\n",my_rank);
+//        //printArray(local_keys,local_n);
+//    }
     //sort local_keys
     qsort(local_keys,local_n,sizeof(int),cmp);
     //exchange
@@ -81,14 +85,9 @@ void Odd_even_sort_Parallel(int keys[],int n,int verifyResult[]){
         }
     }
     //聚集各个进程的数据
-    if(my_rank!=0)
-        MPI_Send(local_keys,local_n,MPI_INT,0,2,MPI_COMM_WORLD);
-    else{
-        copyArray(keys,local_keys,local_n);
-        for(i=1;i<comm_sz;i++){
-            MPI_Recv(local_keys,local_n,MPI_INT,i,2,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-            copyArray(keys+i*local_n,local_keys,local_n);
-        }
+    //MPI_Gather效果同下面逐个进程send 和rece
+    MPI_Gather(local_keys,local_n,MPI_INT,keys,local_n,MPI_INT,0,MPI_COMM_WORLD);
+    if(my_rank==0){
         for(i=0;i<n;i++)
             if(keys[i]!=verifyResult[i])
                 break;
@@ -97,6 +96,22 @@ void Odd_even_sort_Parallel(int keys[],int n,int verifyResult[]){
         else
             printf("Error!!! i=%d\n",i);
     }
+//    if(my_rank!=0)
+//        MPI_Send(local_keys,local_n,MPI_INT,0,2,MPI_COMM_WORLD);
+//    else{
+//        copyArray(keys,local_keys,local_n);
+//        for(i=1;i<comm_sz;i++){
+//            MPI_Recv(local_keys,local_n,MPI_INT,i,2,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+//            copyArray(keys+i*local_n,local_keys,local_n);
+//        }
+//        for(i=0;i<n;i++)
+//            if(keys[i]!=verifyResult[i])
+//                break;
+//        if(i==n)
+//            printf("True!!!\n");
+//        else
+//            printf("Error!!! i=%d\n",i);
+//    }
     MPI_Finalize();
 }
 
