@@ -13,6 +13,9 @@
 #define BUFFER_FLAG 1
 #define ANS_FLAG 2
 
+void Mat_Mult(float* M,int mRow,int mCol,float* N,int nRow,int nCol);
+void Mat_Gen(float* mat,int row,int col);
+
 void Mat_Gen(float* mat,int row,int col){
     int i,j;
     for(i=0;i<row;i++){
