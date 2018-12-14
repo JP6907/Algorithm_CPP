@@ -43,8 +43,8 @@ void Send_and_Recv(){
     //初始化该线程的消息队列
     msg_queue[my_rank] = *Create_MessageQueue(my_rank);
     //必须所有线程完成初始化消息队列后才能开始发送消息
-#pragma omp barrier
     printf("rank%d init over\n",my_rank);
+#pragma omp barrier
 
     char* message_content = genRandomMsg(my_rank,10);
     int i;
