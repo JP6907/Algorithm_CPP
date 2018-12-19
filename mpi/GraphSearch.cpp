@@ -16,7 +16,7 @@
 
 using namespace std;
 
-#define DEBUG
+#define DEBUGED
 
 #define REQUEST_TASK_TAG 11    //从进程向主进程请求任务标志
 #define ALLOCAT_TASK_TAG 12  //主进程向从进程分配任务标志
@@ -53,9 +53,11 @@ int main(){
     MPI_Init(NULL,NULL);
     MPI_Comm_size(MPI_COMM_WORLD,&comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD,&my_rank);
+    //MooreSearch(graph);
+    double start,end;
 
     if(my_rank==0){ //主进程
-
+        start = MPI_Wtime();
         mqueue.push(0);
         while(!mqueue.empty()){
             MPI_Recv(&requestBuff,0,MPI_INT,MPI_ANY_SOURCE,REQUEST_TASK_TAG,MPI_COMM_WORLD,&status); //获取任务请求
@@ -100,8 +102,11 @@ int main(){
         }
     }
 
-    if(my_rank==0)
-        printArray("dist",dist,n);
+    if(my_rank==0) {
+        end = MPI_Wtime();
+        cout << "time:" << end-start << endl;
+        printArray("dist", dist, n);
+    }
 
 
     MPI_Finalize();
@@ -112,6 +117,7 @@ int main(){
 
 void MooreSearch(Graph graph){
 
+    double start,end;
     int n = graph.getVertexNum();
     queue<int> mqueue;
     int *dist = new int[graph.getVertexNum()];
@@ -132,6 +138,7 @@ void MooreSearch(Graph graph){
     printArray("dist",dist,n);
 #endif
     cout << graph.getEdge(0,1) << endl;
+    start = MPI_Wtime();
     //printGraph(graph);
     mqueue.push(0);
     while(!mqueue.empty()){
@@ -146,6 +153,8 @@ void MooreSearch(Graph graph){
             }
         }
     }
+    end = MPI_Wtime();
+    cout << "time:" << end-start << endl;
     printArray("dist",dist,n);
 }
 
@@ -167,3 +176,14 @@ void printArray(string flag,int array[],int n){
         cout << array[i] << " ";
     cout << endl;
 }
+
+/**
+ * Moore并行算法实际上只能每个进程之间只能是串行工作
+ * 因为dist数组迭代之间存在循环相关
+ * 所以进程数增加，实际上算法消耗时间是更多的，存在更多的进程通信时间
+ * 进程数      时间
+ *  1     0.000025034
+ *  2     0.000503778
+ *  3     0.000691891
+ *  4     0.00131655
+ */
