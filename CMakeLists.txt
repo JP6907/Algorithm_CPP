@@ -26,6 +26,12 @@ set(CMAKE_CXX_STANDARD 14)
 #
 #target_link_libraries(MessageQueue_Parallel omp)
 
-include_directories(DataStruct /usr/local/include)
+include_directories(DataStruct Tools /usr/local/include)
 
 add_executable(GraphSearch mpi/GraphSearch.cpp DataStruct/Graph.cpp)
+
+target_link_libraries(GraphSearch mpi)
+
+add_executable(RankSort Sort/RankSort.cpp Tools/Tools.cpp)
+
+target_link_libraries(RankSort mpi)
