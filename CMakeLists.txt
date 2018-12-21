@@ -32,6 +32,12 @@ add_executable(GraphSearch mpi/GraphSearch.cpp DataStruct/Graph.cpp)
 
 target_link_libraries(GraphSearch mpi)
 
-add_executable(RankSort Sort/RankSort.cpp Tools/Tools.cpp)
+#add_executable(RankSort Sort/RankSort.cpp Tools/Tools.cpp)
+#
+#target_link_libraries(RankSort mpi)
+#
+#add_executable(QuickSort Sort/QuickSort.cpp Tools/Tools.cpp)
 
-target_link_libraries(RankSort mpi)
+add_executable(sort_test Sort/sort_test.cpp  Sort/sort.cpp Tools/Tools.cpp)
+
+target_link_libraries(sort_test mpi)

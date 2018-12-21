@@ -38,3 +38,24 @@ void copyArray(int *dest,int *sour,int num){
     for(i=0;i<num;i++)
         dest[i] = sour[i];
 }
+
+int log2(int num){
+    int i=1,j=2;
+    while(j<num){
+        j *=2;
+        i++;
+    }
+    if(j>num)
+        i--;
+    return i;
+}
+
+
+int exp2(int n){
+    int i=1;
+    while(n>0){
+        n--;
+        i *=2;
+    }
+    return i;
+}

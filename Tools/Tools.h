@@ -46,4 +46,18 @@ int cmp(const void* a,const void* b);
  */
 void copyArray(int *dest,int *sour,int num);
 
+/**
+ * 以2为底的num的对数
+ * @param num
+ * @return
+ */
+int log2(int num);
+
+/**
+ * 求2的n次幂
+ * @param n
+ * @return
+ */
+int exp2(int n);
+
 #endif //PARALLELPROGRAM_TOOLS_H
