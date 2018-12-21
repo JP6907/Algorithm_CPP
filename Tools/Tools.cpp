@@ -59,3 +59,10 @@ int exp2(int n){
     }
     return i;
 }
+
+
+void swap(int* a,int* b){
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}

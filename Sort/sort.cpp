@@ -2,6 +2,9 @@
 // Created by zjp on 18-12-21.
 //
 #include "sort.h"
+#include "Tools.h"
+#include <stdlib.h>
+#include <ctime>
 
 void rankSort(int *a,int len){
     int *b = new int[len];
@@ -31,6 +34,12 @@ void quickSort(int *a, int low, int high) {
 
 int partion(int *a, int low, int high) {
     int pivot = a[low];
+//    srand(int(time(0)));
+//    int pivotpos = rand()%(high-low)+low;  //随机选取
+//    if(pivotpos!=low)                    //交换，保持后面代码一致
+//        swap(a+low,a+pivotpos);
+//    int pivot = a[low];
+
     while (low < high) {
         while (low < high && a[high] >= pivot)
             --high;

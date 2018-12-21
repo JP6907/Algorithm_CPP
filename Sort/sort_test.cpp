@@ -4,7 +4,7 @@
 #include "catch.h"
 #include "sort.h"
 #include "Tools.h"
-#include <mpi.h>
+#include <time.h>
 
 #define RANK_SORTED
 #define QUICK_SORT
@@ -34,9 +34,9 @@ TEST_CASE("rankSort"){
 #ifdef QUICK_SORT
 ///10000个数排序 ，时间 0.00103641
 TEST_CASE("quickSort"){
-    MPI_Init(NULL,NULL);
-    int n = 10000;
-    int max = 100000;
+    clock_t start_time,end_time;
+    int n = 1000000;
+    int max = 1000000;
     double start;
     double end;
 
@@ -46,14 +46,13 @@ TEST_CASE("quickSort"){
     //printArray("Before sort",a,n);
     qsort(b, n, sizeof(int), cmp);
 
-    start = MPI_Wtime();
+    start_time = clock();
     quickSort(a, 0, n - 1);
-    end = MPI_Wtime();
-    cout << "Time: " << end-start << endl;
+    end_time = clock();
+    cout << "Time: " << (double)(end_time-start_time)/CLOCKS_PER_SEC << endl;
 
     //printArray("After sort",a,n);
     cout << isArrayEqual(a, b, n) << endl;
 
-    MPI_Finalize();
 }
 #endif

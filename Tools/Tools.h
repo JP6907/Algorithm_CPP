@@ -60,4 +60,11 @@ int log2(int num);
  */
 int exp2(int n);
 
+/**
+ * 交换两个数
+ * @param a
+ * @param b
+ */
+void swap(int* a,int* b);
+
 #endif //PARALLELPROGRAM_TOOLS_H

@@ -40,4 +40,4 @@ target_link_libraries(GraphSearch mpi)
 
 add_executable(sort_test Sort/sort_test.cpp  Sort/sort.cpp Tools/Tools.cpp)
 
-target_link_libraries(sort_test mpi)
+
