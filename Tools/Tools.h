@@ -15,6 +15,34 @@
 int* createRandomArray(int len,int max);
 
 /**
+ * 生成不重复的随机数列
+ * 必须符合max-min+1>=len,如果不符合，最后全部用0填充
+ * @param len
+ * @param min
+ * @param max
+ * @return
+ */
+int* createRandomArray_noRepeat(int len,int min,int max);
+
+/**
+ * 创建随即数组到文件
+ * @param len
+ * @param min
+ * @param max
+ * @param output_filename
+ */
+void createRandomArrayToFile(int len,int min,int max,std::string output_filename);
+
+/**
+ * 创建不重复的随机数列到文件
+ * @param len
+ * @param min
+ * @param max
+ * @param output_filename
+ */
+void createRandomArrayToFile_noRepeat(int len,int min,int max,std::string output_filename);
+
+/**
  * 打印数组
  * @param flag 打印标志
  * @param a 数组
