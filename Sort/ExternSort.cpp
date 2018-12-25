@@ -137,6 +137,7 @@ void ExternSort::mergeSort(int fileCount) {
             w = 0;
         }
     }
+    delete []outputBuffer;
     delete []isFinish;
     delete []data;
     for(int i=0;i<fileCount;i++)

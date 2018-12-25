@@ -101,3 +101,45 @@ void bitsetSort_file(const int maxNum,std::string unsort_filename,std::string so
     fclose(fp_sort_file);
     fclose(fp_unsort_file);
 }
+
+///手摇归并排序
+void mergeSort_handShake(int a[],int left,int right){
+    if(left<right){
+        int mid = (left+right)/2;
+        mergeSort_handShake(a,left,mid);
+        mergeSort_handShake(a,mid+1,right);
+        merge_handShake(a,left,mid,right);
+    }
+}
+void merge_handShake(int a[],int left,int mid,int right){
+    int i=left;
+    int j = mid+1;
+    int index = j;
+    while(j<=right&&i<j){
+        while(a[i]<=a[j]&&i<j)  //如果是 <= 那么优化后的归并排序是稳定的，否则就是不稳定的
+            i++;
+        if(i==j)
+            break;
+        index = j;
+        while(a[j]<a[i]&&j<=right)
+            j++;
+        exchange(a,i,index-1,j-1);
+        i+=(j-index);
+    }
+}
+void exchange(int a[],int left,int mid,int right){ //交换(left-mid)和(mid+1-right)
+    reverse(a,left,mid);
+    reverse(a,mid+1,right);
+    reverse(a,left,right);
+}
+void reverse(int a[],int left,int right){
+    int *p1 = &a[left];
+    int *p2 = &a[right];
+    while(p1<p2){
+        int temp = *p1;
+        *p1 = *p2;
+        *p2 = temp;
+        p1++;
+        p2--;
+    }
+}

@@ -33,4 +33,16 @@ int partion(int *a, int low, int high);
  */
 void bitsetSort_file(const int maxNum,std::string unsort_filename,std::string sort_filename);
 
+/**
+ * 手摇归并算法
+ * 实现原地归并，空间复杂度为o(1)
+ * @param a
+ * @param left
+ * @param right
+ */
+void mergeSort_handShake(int a[],int left,int right);
+void merge_handShake(int a[],int left,int mid,int right);
+void exchange(int a[],int left,int mid,int right); //交换(left-mid)和(mid+1-right)
+void reverse(int a[],int left,int right);
+
 #endif //PARALLELPROGRAM_SORT_H

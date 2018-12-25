@@ -9,7 +9,8 @@
 #define RANK_SORTED
 #define QUICK_SORTED
 #define BITSET_SORTED
-#define EXTERN_SORT
+#define EXTERN_SORTED
+#define HANDSHAKE_SORT
 
 using namespace std;
 
@@ -92,6 +93,17 @@ TEST_CASE("externSort"){
     externSort.sort();
     end_time = clock();
     cout << "Time:" << (double)(end_time-start_time)/CLOCKS_PER_SEC << endl;
+
+}
+#endif
+
+#ifdef HANDSHAKE_SORT
+TEST_CASE("handShake_sort"){
+    int len = 20,max = 100;
+    int *a = createRandomArray(len,max);
+    printArray("Before sort",a,len);
+    mergeSort_handShake(a,0,len-1);
+    printArray("After sort",a,len);
 
 }
 #endif
