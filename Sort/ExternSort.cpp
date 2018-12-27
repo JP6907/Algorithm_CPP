@@ -3,6 +3,7 @@
 //
 
 #include "ExternSort.h"
+#include "LoserTree.h"
 #include <iostream>
 #include <assert.h>
 #include <cstring>
@@ -103,6 +104,90 @@ void ExternSort::mergeSort(int fileCount) {
     for(int i=0;i<fileCount;i++){
         if(fscanf(fArray[i],"%d",&data[i])==EOF)
             isFinish[i] = true;
+    }
+    //归并
+    while(true){
+        //记录data数组中的最小值及其索引
+        int min;
+        int index = 0;
+        //寻找到第一个未读完的文件
+        while(index<fileCount&&isFinish[index])
+            index ++;
+
+        if(index>=fileCount)  //已经读完
+            break;
+
+        //寻找data[]中最小值
+        min = data[index];
+        for(int i=index+1;i<fileCount;i++){
+            if(!isFinish[i]&&data[i]<min){
+                min = data[i];
+                index = i;
+            }
+        }
+        //每次将data[]记录的最小值写到文件
+        //并判断最小值所在文件是否已经读取完毕
+        if(fscanf(fArray[index],"%d",&data[index])==EOF)
+            isFinish[index] = true;
+        //输出最小值
+        //fprintf(fout,"%d ",min);   //5.63771 s
+        //使用输出缓存                 //5.2726 s
+        outputBuffer[w++] = min;
+        if(w==outputBufferSize) {
+            writeData(fout, outputBuffer, w);
+            w = 0;
+        }
+    }
+    delete []outputBuffer;
+    delete []isFinish;
+    delete []data;
+    for(int i=0;i<fileCount;i++)
+        fclose(fArray[i]);
+    delete []fArray;
+    fclose(fout);
+}
+
+void ExternSort::mergeSort_loserTree(int fileCount) {
+    if(fileCount<=0)
+        return;
+    const int outputBufferSize = 10000;
+    int w = 0;
+    int* outputBuffer = new int[outputBufferSize];  // 输出缓存
+
+    FILE* fout = fopen(m_out_file,"w");
+    assert(fout);
+    FILE** fArray = new FILE*[fileCount];
+    //打开文件
+    for(int i=0;i<fileCount;i++){
+        char* tempFile = getTempFileName(i);
+        fArray[i] = fopen(tempFile,"rt");
+        assert(fArray[i]);
+        delete tempFile;
+    }
+    int temp;
+    //读取每个文件第一个数到data数组中
+    for(int i=0;i<fileCount;i++){
+        if(fscanf(fArray[i],"%d",&temp)==EOF)
+
+    }
+
+    LoserTree* loserTree = new LoserTree(fileCount,data);
+    while(true){
+        int index = 0;
+        //找到第一个未读完的文件
+        while(index<fileCount&&isFinish[index])
+            index++;
+        if(index>=fileCount)
+            break;
+
+        outputBuffer[w++] = loserTree->getMin();
+        if(w==outputBufferSize) {
+            writeData(fout, outputBuffer, w);
+            w = 0;
+        }
+
+        if(fscanf(fArray[index],"%d",&data[index])==EOF)
+            isFinish[index] = true;
     }
     //归并
     while(true){

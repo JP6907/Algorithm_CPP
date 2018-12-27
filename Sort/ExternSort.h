@@ -67,6 +67,11 @@ protected:
      */
     void mergeSort(int fileCount);
     /**
+     * 使用败者树进行多路归并
+     * @param fileCount
+     */
+    void mergeSort_loserTree(int fileCount);
+    /**
      * 用于qsort函数调用
      * @param a
      * @param b
